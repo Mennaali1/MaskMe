@@ -1,0 +1,11 @@
+import express from "express";
+import { connection } from "./database/dbConnection.js";
+import userRouter from "./src/modules/user/user.router.js";
+import messageRouter from "./src/modules/message/message.router.js";
+const app = express();
+const port = 3000;
+connection();
+app.use(express.json());
+app.use("/user", userRouter);
+app.use("/message", messageRouter);
+app.listen(port, () => console.log("app is runing"));
