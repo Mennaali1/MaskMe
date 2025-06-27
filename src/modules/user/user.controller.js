@@ -3,14 +3,26 @@
 import { userModel } from "../../../database/model/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { sendEmail } from "../../mail/user.email.js";
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
   const user = await userModel.findOne({ email });
   if (user) return res.json({ message: "email already in use" });
   bcrypt.hash(password, 8, async function (err, hash) {
     await userModel.insertMany({ name, email, password: hash });
+    sendEmail({ email });
     res.json({ message: "user created" });
   });
+};
+
+export const verify = async (req, res) => {
+  const { email } = req.params;
+  await userModel.findOneAndUpdate(
+    { email },
+    { confirmEmail: true },
+    { new: true }
+  );
+  res.json({ message: "user verified successfully" });
 };
 
 //signin

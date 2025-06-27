@@ -18,6 +18,11 @@ const userSchema = mongoose.Schema({
     enum: ["user", "admin"],
     default: "user",
   },
+
+  confirmEmail: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 export const userModel = mongoose.model("user", userSchema);
