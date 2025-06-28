@@ -16,13 +16,16 @@ export const signup = async (req, res) => {
 };
 
 export const verify = async (req, res) => {
-  const { email } = req.params;
-  await userModel.findOneAndUpdate(
-    { email },
-    { confirmEmail: true },
-    { new: true }
-  );
-  res.json({ message: "user verified successfully" });
+  const { mailToken } = req.params;
+  jwt.verify(mailToken, "mennaalyfahmy", async (err, decoded) => {
+    if (err) return res.json({ message: "invalid token" });
+    await userModel.findOneAndUpdate(
+      { email: decoded.email },
+      { confirmEmail: true },
+      { new: true }
+    );
+    res.json({ message: "user verified successfully" });
+  });
 };
 
 //signin
