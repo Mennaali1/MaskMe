@@ -6,17 +6,19 @@ const userSchema = mongoose.Schema({
     required: true,
     minLength: [3, "too short"],
     maxLength: [25, "too long"],
+    required: true,
   },
   email: {
     type: String,
     required: true,
     unique: true,
   },
-  password: { type: String, min: 8, max: 25 },
+  password: { type: String, min: 8, max: 25, required: true },
   role: {
     type: String,
     enum: ["user", "admin"],
     default: "user",
+    required: true,
   },
 
   confirmEmail: {
