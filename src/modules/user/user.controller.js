@@ -3,21 +3,22 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { sendEmail } from "../../mail/user.email.js";
 import { errHandling } from "../../utils/errorHandling.js";
+import { appError } from "../../utils/AppError.js";
 
-export const signup = errHandling(async (req, res) => {
+export const signup = errHandling(async (req, res, next) => {
   const { name, email, password } = req.body;
   const user = await userModel.findOne({ email });
-  if (user) return res.json({ message: "email already in use" });
+  if (user) return next(new appError("email already in use", 400));
   const hash = await bcrypt.hash(password, 8);
   await userModel.insertMany({ name, email, password: hash });
   sendEmail({ email });
   res.json({ message: "user created" });
 });
 
-export const verify = errHandling(async (req, res) => {
+export const verify = errHandling(async (req, res, next) => {
   const { mailToken } = req.params;
   jwt.verify(mailToken, "mennaalyfahmy", async (err, decoded) => {
-    if (err) return res.json({ message: "invalid token" });
+    if (err) return next(new appError("invalid token", 402));
     await userModel.findOneAndUpdate(
       { email: decoded.email },
       { confirmEmail: true },
@@ -28,7 +29,7 @@ export const verify = errHandling(async (req, res) => {
 });
 
 //signin
-export const signin = errHandling(async (req, res) => {
+export const signin = errHandling(async (req, res, next) => {
   const { email, password } = req.body;
   const user = await userModel.findOne({ email });
 
@@ -37,6 +38,6 @@ export const signin = errHandling(async (req, res) => {
     let token = jwt.sign({ user }, "mennaalyfahmy");
     return res.json({ message: "logged in successfully", token });
   } else {
-    res.json({ message: "incorrect username or password" });
+    return next(new appError("incorrect username or password", 401));
   }
 });
