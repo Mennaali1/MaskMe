@@ -8,4 +8,10 @@ connection();
 app.use(express.json());
 app.use("/user", userRouter);
 app.use("/message", messageRouter);
+app.use((req, res) => {
+  res.status(404).json({ message: "invalid URL " + req.originalUrl });
+});
+app.use((err, req, res, next) => {
+  res.status(500).json({ message: "error", err });
+});
 app.listen(port, () => console.log("app is runing"));
